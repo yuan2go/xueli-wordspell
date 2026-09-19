@@ -6,17 +6,19 @@ import { letterLayout } from "../game/interaction.ts";
 export function Letters({
   step,
   submit,
+  disabled = false,
 }: {
   step: Step;
+  disabled?: boolean;
   submit: (word: string) => void;
 }) {
   const { tokens, fixed } = letterLayout(step);
   const initial =
     step.type === "transform"
-      ? [0, 1, 2].map((i) =>
+      ? Array.from({ length: step.word.length }, (_, i) =>
           fixed(i) ? null : tokens.find((t) => t.letter === step.from?.[i])!.id,
         )
-      : [null, null, null];
+      : Array.from({ length: step.word.length }, () => null);
   const [slots, setSlots] = useState<(string | null)[]>(initial);
   const [selected, setSelected] = useState<number | null>(null);
   const [lesson, setLesson] = useState(0);
@@ -42,7 +44,7 @@ export function Letters({
   const pointer = usePointerDrop((source, target) => {
     if (target?.startsWith("slot-")) move(source, Number(target.slice(5)));
     else if (target === "bank") move(source, null);
-  });
+  }, disabled);
   function choose(token: string) {
     const empty = selected ?? slots.findIndex((v, i) => !v && !fixed(i));
     if (empty >= 0) move(token, empty);
@@ -115,7 +117,7 @@ export function Letters({
       )}
       <button
         className="primary spell"
-        disabled={word.length !== 3}
+        disabled={word.length !== step.word.length}
         onClick={() => submit(word)}
       >
         施法 <span aria-hidden="true">✧</span>

@@ -1,271 +1,241 @@
-import { useState } from "react";
-import { Art, CharacterArt, Visual, NAMES } from "./Art.tsx";
+import { Art, CharacterArt, NAMES, Visual } from "./Art.tsx";
 export { Art, CharacterArt, AssetContext, NAMES } from "./Art.tsx";
-import type { WordId } from "../domain/world.ts";
-import type { Entity } from "../domain/world.ts";
-import { shuffled } from "../game/random.ts";
-import type { Step } from "../content/story.ts";
-import type { Session, Input } from "../game/session.ts";
+import type { Adventure } from "../game/adventure.ts";
+import {
+  accessible,
+  availableTargets,
+  availableWords,
+  board,
+  occluded,
+} from "../game/adventure.ts";
+import type { Location, Entity } from "../domain/world.ts";
 import { usePointerDrop } from "./pointer.ts";
-import { sceneTargets } from "../game/interaction.ts";
-import type { FeedbackDefinition } from "../content/feedback.ts";
+import { SCENES } from "../content/adventure.ts";
 export function Scene({
   session,
-  step,
-  submit,
+  selected,
+  onSelect,
+  onWord,
+  onMove,
   onMiss,
-  reveal = false,
-  cue,
-  cuePhase = 2,
-  before,
-  seed = 1,
-  projection,
+  response,
+  pose = "idle",
   disabled = false,
-  thinking = false,
 }: {
-  session: Session;
-  step?: Step;
-  submit: (input: Input) => void;
+  session: Adventure;
+  selected: string | null;
+  onSelect: (id: string) => void;
+  onWord: (id: string) => void;
+  onMove: (source: string, target: Location) => void;
   onMiss: () => void;
-  reveal?: boolean;
-  cue?: FeedbackDefinition;
-  cuePhase?: number;
-  before?: Entity;
-  seed?: number;
-  projection?: { word: WordId; rest: boolean; repeated: boolean } | null;
+  response: string;
+  pose?: "idle" | "thinking" | "action" | "happy";
   disabled?: boolean;
-  thinking?: boolean;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
-  const place = (source: string, target: string | null) => {
+  const b = board(session),
+    e = b.world.entities;
+  const place = (source: string, key: string | null) => {
     if (disabled) return;
-    if (!target) {
-      onMiss();
-      return;
-    }
-    const [id, relation] = target.split(":");
-    submit({ source, target: id, relation });
-    setSelected(null);
+    const target = availableTargets(session, source).find((t) => t.key === key);
+    if (target) onMove(source, target.target);
+    else onMiss();
   };
-  const pointer = usePointerDrop((source, target) => {
-    if (step?.type === "place") place(source, target);
-  });
-  const entities = shuffled(Object.values(session.world.entities), seed).map(
-    (e) =>
-      cue?.kind === "morph" && before?.id === e.id && cuePhase < 2 ? before : e,
-  );
-  const act = step?.act ?? 3;
-  const sceneId = `scene-act-${act}`;
-  const pose = !step ? "happy" : projection || thinking ? "thinking" : cue ? "action" : "idle";
-  const targets = sceneTargets(session.world, act);
-  const arrived = session.events.some((e) => e.correct && e.stepId === "s11");
-  const mapReady = session.world.entities["route-sheet"]?.word === "map";
-  return (
-    <section
-      className={`scene production-scene act-${act} ${session.world.flags.includes("crossed-ink") ? "crossed" : ""} ${projection?.rest ? "cat-rest" : ""}`}
-      data-restored={session.events.filter((e) => e.correct).length}
-      data-performance={cue?.kind}
-      data-performing-entity={cue?.entityId}
-      data-cue-phase={cue ? cuePhase : undefined}
-      aria-label="故事场景"
-    >
-      <Visual id={sceneId} label={`第 ${act} 幕场景`} className="scene-background-image" />
-      <div className="scene-ground" aria-hidden="true" />
-      <p className="scene-caption">
-        {act === 1
-          ? "从一页空白，走向一场野餐。"
-          : act === 2
-            ? session.world.flags.includes("crossed-ink")
-              ? "小猫过来了，小径留在身后。"
-              : "一张纸，也能成为一条路。"
-            : "把故事里的物品，放回故事里。"}
-        {mapReady && (
-          <span className="map-direction">
-            {arrived
-              ? "✓ 地图终点：野餐地"
-              : session.world.flags.includes("crossed-ink")
-                ? "地图指向 → 树荫与草地"
-                : "地图指向 → 林间小径"}
-          </span>
-        )}
-      </p>
-      {cue && (
-        <p className="scene-response" role="status">
-          {cue.response}
-        </p>
-      )}
-      {projection && (
-        <div
-          className={`scene-projection ${projection.rest ? "rest-projection" : ""}`}
-          role="status"
-        >
-          <Art word={projection.word} />
-          <p>
-            {projection.rest
-              ? projection.repeated
-                ? "还是 mat。听听词尾，再改一格。"
-                : "“可以休息了吗？”小猫想了想。\n这是 mat 的想象，还不是路线图。重听，再改词尾。"
-              : `这是 ${projection.word} 的想象，也是故事里的单词；这次再听听另一件物品。`}
-          </p>
-        </div>
-      )}
-      {act === 2 && (
+  const pointer = usePointerDrop(place, disabled);
+  const moving = pointer.ghost?.label ?? selected;
+  const targets = moving ? availableTargets(session, moving) : [];
+  const choose = (id: string) => {
+    if (disabled) return;
+    const target = selected && targets.find((t) => t.key === id);
+    if (target) onMove(selected!, target.target);
+    else onSelect(id);
+  };
+  const positions: Record<string, [number, number]> = {
+    "cat-companion": [
+      b.scene === "trail" && b.world.flags.includes("crossed-ink") ? 80 : 16,
+      45,
+    ],
+    "bag-main": [45, 32],
+    "route-sheet": b.scene === "meadow" ? [16, 80] : [80, 76],
+    "hat-main": [30, 78],
+    "cat-card": [77, 24],
+    "picnic-mat": [68, 80],
+    "craft-mat": [12, 64],
+    "craft-hat": [50, 80],
+  };
+  const name = (item: Entity) =>
+    item.id === "cat-card" && item.word === "cat"
+      ? "小猫纸偶"
+      : item.id === "route-sheet" && item.word === "mat"
+        ? "纸张垫子"
+        : item.id === "picnic-mat"
+          ? "野餐垫"
+          : item.id.startsWith("craft-")
+            ? `备用${NAMES[item.word]}`
+            : NAMES[item.word];
+  function renderEntity(item: Entity, childIndex = 0, childCount = 1) {
+    if (!accessible(b, item.id)) return null;
+    const l = item.location,
+      target = targets.find((t) => t.key === item.id);
+    const children = Object.values(e).filter(
+      (x) => "targetId" in x.location && x.location.targetId === item.id,
+    );
+    const onTop = children.filter(
+      (x) => x.location.kind === "relation" && x.location.relation === "on",
+    );
+    const inside = children.filter(
+      (x) => x.location.kind === "relation" && x.location.relation === "in",
+    );
+    const hats = children.filter((x) => x.location.kind === "worn");
+    const [x, y] =
+      l.kind === "zone" ? [52, 55] : (positions[item.id] ?? [50, 75]);
+    const style =
+      l.kind === "worn"
+        ? { left: "62%", top: "14%" }
+        : l.kind === "relation"
+          ? l.relation === "in"
+            ? {}
+            : {
+                left: `${((childIndex + 1) * 100) / (childCount + 1)}%`,
+                top: "42%",
+              }
+          : { left: `${x}%`, top: `${y}%` };
+    return (
+      <div
+        key={item.id}
+        className={`entity-anchor anchor-${item.word} ${item.kind === "actor" ? "anchor-actor" : ""} ${l.kind === "worn" ? "anchor-worn" : l.kind === "relation" ? `anchor-${l.relation}` : ""} ${l.kind === "zone" ? "anchor-road" : ""}`}
+        style={style}
+      >
         <button
-          className="ink-road"
-          disabled={
-            disabled ||
-            step?.type !== "place" ||
-            !targets.some((t) => t.entityId === "ink-road")
+          className={`quest-object ${item.kind === "actor" ? "quest-cat" : ""} ${item.word === "mat" ? "quest-mat" : ""} ${l.kind === "worn" ? "quest-worn" : ""} ${selected === item.id ? "selected" : ""} ${target ? "legal-target" : ""} ${pointer.ghost?.label === item.id ? "drag-origin" : ""}`}
+          data-entity={item.id}
+          data-word={item.word}
+          data-location={
+            l.kind === "relation" ? `${l.relation}:${l.targetId}` : l.kind
           }
-          data-drop={targets.find((t) => t.entityId === "ink-road")?.id}
-          onClick={() => {
-            if (selected && step?.type === "place")
-              place(selected, "ink-road:across");
-          }}
-          aria-label="湿墨小径"
+          data-drop={target?.key}
+          aria-label={name(item)}
+          aria-pressed={selected === item.id}
+          disabled={disabled}
+          onPointerDown={(ev) => pointer.start(ev, item.id)}
+          onClick={() => pointer.click(() => choose(item.id))}
         >
-          {session.world.flags.includes("crossed-ink")
-            ? "✓ 已走过的小径"
-            : "湿墨小径"}
-          {entities.find((e) => e.id === "route-sheet")?.location.kind ===
-            "zone" && (
-            <span className="road-mat">
-              <Art word="mat" />
-            </span>
+          {item.kind === "actor" ? (
+            <CharacterArt pose={hats.length ? "idle" : pose} />
+          ) : (
+            <Art
+              word={item.word}
+              paper={item.id === "cat-card" && item.word === "cat"}
+            />
+          )}
+          <span className="item-label">
+            {name(item)}
+            {l.kind === "relation"
+              ? l.relation === "in"
+                ? " · 包内"
+                : " · 垫上"
+              : l.kind === "worn"
+                ? " · 戴着"
+                : ""}
+          </span>
+          {item.id === "bag-main" && (
+            <small className="bag-state">
+              {b.bagOpen ? "袋口开着" : "袋口合着"}
+            </small>
           )}
         </button>
-      )}
-      <div className="scene-objects">
-        {entities
-          .filter((e) => e.location.kind === "stage")
-          .map((entity) => {
-            const children = entities.filter(
-              (e) =>
-                e.location.kind === "relation" &&
-                e.location.targetId === entity.id,
-            );
-            const name =
-              entity.id === "cat-card" && entity.word === "cat"
-                ? "小猫纸偶"
-                : NAMES[entity.word];
-            const region = targets.find((t) => t.entityId === entity.id);
-            const isCompanion = entity.id === "cat-companion";
-            return (
-              <div
-                key={entity.id}
-                className={`object-wrap object-${entity.id}`}
-              >
-                <button
-                  disabled={disabled}
-                  className={`object ${selected === entity.id ? "selected" : ""} ${entity.kind === "token" ? "paper-token" : ""} ${isCompanion ? "companion-object" : ""}`}
-                  aria-label={name}
-                  aria-pressed={selected === entity.id}
-                  data-entity={entity.id}
-                  data-word={entity.word}
-                  data-drop={step?.type === "place" && !disabled ? region?.id : undefined}
-                  aria-description={
-                    region
-                      ? `放置目标：${region.label}。先选物品再点这里，或拖到这里。`
-                      : undefined
-                  }
-                  onPointerDown={(e) => {
-                    if (step?.type === "place") pointer.start(e, entity.id);
-                  }}
-                  onClick={() =>
-                    pointer.click(() => {
-                      if (step?.type === "select")
-                        submit({ source: entity.id });
-                      else if (step?.type === "place") {
-                        if (selected && region && selected !== entity.id)
-                          place(selected, region.id);
-                        else
-                          setSelected(
-                            selected === entity.id ? null : entity.id,
-                          );
-                      }
-                    })
-                  }
-                >
-                  {isCompanion ? <CharacterArt pose={pose} /> : <Art word={entity.word} paper={entity.id === "cat-card" && entity.word === "cat"} />}
-                  {cue?.kind === "try-hat" && entity.id === "cat-companion" && (
-                    <span
-                      className="try-hat-prop"
-                      aria-label="短暂试戴，不改变物品位置"
-                    >
-                      <Art word="hat" />
-                    </span>
-                  )}
-                  {entity.word === "mat" && children.length > 0 && (
-                    <span className="on-mat">
-                      {children.map((child) => (
-                        <span key={child.id}>
-                          {child.id === "cat-companion" ? <CharacterArt pose={pose} /> : <Art word={child.word} />}
-                          <small className="sr-only">
-                            {NAMES[child.word]}在上面
-                          </small>
-                        </span>
-                      ))}
-                    </span>
-                  )}
-                  <span className="object-label">{reveal ? entity.word : name}</span>
-                  {selected === entity.id && <small>已选中 ✓</small>}
-                  {step?.type === "place" && region && (
-                    <small className="region-label">
-                      {region.label} · {region.relation}
-                    </small>
-                  )}
-                </button>
-                {entity.word === "mat" && children.length > 0 && (
-                  <span className="placement-caption">
-                    {children.map((child) => NAMES[child.word]).join("、")}
-                    在垫子上面
-                  </span>
-                )}
-                {act === 2 && entity.id === "cat-companion" && (
-                  <small className="bank-state">
-                    {session.world.flags.includes("crossed-ink")
-                      ? "已到对岸"
-                      : "小径这边"}
-                  </small>
-                )}
-                {children.length > 0 && entity.word !== "mat" && (
-                  <div
-                    className="placed inside"
-                    aria-label={`${name}里面的物品`}
-                  >
-                    {children.map((child) => (
-                      <div key={child.id}>
-                        <Art word={child.word} />
-                        <small>{NAMES[child.word]}在里面</small>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        {onTop.map((child, index) => renderEntity(child, index, onTop.length))}
+        {hats.map((child) => renderEntity(child))}
+        {b.bagOpen && inside.length > 0 && (
+          <div className="bag-contents" aria-label="背包里面">
+            {inside.map((child) => renderEntity(child))}
+          </div>
+        )}
       </div>
-      {step?.type === "place" && !disabled && (
-        <p className="placement-lesson" role="status">
-          {selected
-            ? "已选物品。点场景中的背包内部、垫子表面或湿墨区域；也可以重新选择。"
-            : "先点要移动的物品，再点场景里的目标。也可直接拖过去；落空不会扣分。"}
-        </p>
+    );
+  }
+  return (
+    <section
+      className={`quest-scene scene-${b.scene} ${b.bagOpen ? "bag-open" : ""}`}
+      aria-label="故事场景"
+      data-scene={b.scene}
+      data-crossed={b.world.flags.includes("crossed-ink")}
+    >
+      <Visual
+        id={`scene-act-${SCENES[b.scene].act}`}
+        label={SCENES[b.scene].title}
+        className="quest-background"
+      />
+      <p className="cat-speech" aria-live="polite">
+        {response ||
+          (b.scene === "trail" && !b.world.flags.includes("crossed-ink")
+            ? "喵…爪子会沾上湿墨。有什么能铺过去？"
+            : "点点我和身边的东西，看看能做什么。")}
+      </p>
+      {b.scene === "trail" && (
+        <button
+          className={`quest-ink ${targets.some((t) => t.key === "ink-road") ? "legal-target" : ""}`}
+          data-drop={
+            targets.some((t) => t.key === "ink-road") ? "ink-road" : undefined
+          }
+          onClick={() =>
+            moving ? place(moving, "ink-road") : onSelect("ink-road")
+          }
+          aria-label="湿墨小径"
+        >
+          {b.world.flags.includes("crossed-ink") ? "已到对岸 ✓" : "湿墨小径"}
+        </button>
       )}
-      {entities.length === 0 && (
-        <div className="empty-cat">
-          <CharacterArt pose={thinking ? "thinking" : "idle"} />
-          <span>等待你的第一个单词</span>
+      {Object.values(e)
+        .filter(
+          (item) =>
+            item.location.kind === "stage" || item.location.kind === "zone",
+        )
+        .map((item) => renderEntity(item))}
+      {occluded(b, "cat-card") && (
+        <div className="covered-brim" aria-label="背包后露出的小帽檐">
+          <Art word="cap" />
+          <span>露出一点帽檐…</span>
         </div>
       )}
-      {pointer.ghost && (
+      {availableWords(session).map((t) => (
+        <button
+          key={t.id}
+          className="missing-object"
+          style={{
+            left: `${positions[t.entity][0]}%`,
+            top: `${positions[t.entity][1]}%`,
+          }}
+          onClick={() => onWord(t.id)}
+          aria-label={t.purpose}
+          disabled={disabled}
+        >
+          {t.id === "wake" ? (
+            <CharacterArt pose="thinking" />
+          ) : (
+            <Art word={t.word} />
+          )}
+          <span>{t.purpose}</span>
+        </button>
+      ))}
+      {moving && (
+        <button
+          className="ground-target legal-target"
+          data-drop="ground"
+          onClick={() => place(moving, "ground")}
+        >
+          放回地面
+        </button>
+      )}
+      {pointer.ghost && e[pointer.ghost.label] && (
         <div
-          className="drag-ghost"
+          className="drag-ghost object-ghost"
           style={{ left: pointer.ghost.x, top: pointer.ghost.y }}
         >
-          {session.world.entities[pointer.ghost.label]
-            ? NAMES[session.world.entities[pointer.ghost.label].word]
-            : "放到目标处"}
+          {e[pointer.ghost.label].kind === "actor" ? (
+            <CharacterArt />
+          ) : (
+            <Art word={e[pointer.ghost.label].word} />
+          )}
         </div>
       )}
     </section>

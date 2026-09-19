@@ -3,6 +3,7 @@ import type { PointerEvent } from "react";
 
 export function usePointerDrop(
   drop: (source: string, target: string | null) => void,
+  disabled = false,
 ) {
   const active = useRef<{
     id: number;
@@ -19,6 +20,12 @@ export function usePointerDrop(
     y: number;
     label: string;
   } | null>(null);
+  useEffect(() => {
+    if (disabled) {
+      active.current = null;
+      setGhost(null);
+    }
+  }, [disabled]);
   useEffect(() => {
     const cancel = () => {
       if (active.current) suppressed.current = Date.now() + 350;
@@ -70,7 +77,9 @@ export function usePointerDrop(
   return {
     ghost,
     start: (e: PointerEvent<HTMLElement>, source: string) => {
-      if (active.current || !e.isPrimary || e.button !== 0) return;
+      if (disabled || active.current || !e.isPrimary || e.button !== 0) return;
+      // A new physical press is intentional; only suppress the synthetic click from the finished drag.
+      suppressed.current = 0;
       active.current = {
         id: e.pointerId,
         source,

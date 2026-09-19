@@ -1,55 +1,41 @@
-# 雪梨单词魔法师 · WordSpell
+# 雪梨英语奇旅 / Xueli English Quest
 
-**拼出单词，创造物品；改变字母，改变故事。**
+**发现问题，用单词改变物品，用句子帮助朋友。**
 
-首个故事：**小猫的野餐冒险**。面向有基础拼读经验的儿童，使用手机或平板，通过拼词造物、换字变物和听音互动修复三页绘本。
+首个故事《小猫的野餐冒险》是一款触屏绘本游戏。正式入口 `/` 已接入场景目标驱动的三幕：家门口准备 → 湿墨小径 → 野餐草地。没有账号、后端或运行时 AI 依赖。
 
-> 已实现三幕十二挑战十三步骤，以及通关后的自由野餐、换装/收纳/取出、可逆字母魔法和三个短活动。本轮将确认的带定位器狸花猫、三幕背景和独立道具接入正式 React 绘本页面；真实 HTTP 浏览器验收与截图见 [本轮交付](docs/evidence/tabby-cutover/README.md)。语音仍为未审核的浏览器开发替代，可选文字辅助。素材权利、教研、真机与公开发布仍待审核，见 [项目状态](docs/STATUS.md)。
+唤醒伙伴后就可探索已出现物品。背包和地图可按不同顺序恢复；纸偶能变帽子；开包、取出、戴帽、换帽、摘帽与摆放都产生真实世界结果。同一张路线纸必须亲自变成垫子、铺过湿墨、让猫到达对岸后才能恢复地图。草地上用词块组成指令和描述，安排野餐，并保留自己的帽子和收纳选择。
 
-## 开发入口
+三个短活动按能力提前开放，各有两种手工编排情境：帽子搭配、背包找物、野餐小帮手。退出回到原故事布置，刷新不改活动变体；重玩切换另一种情境。自由制作的备用 mat / hat 各一件，稳定 ID，不复制主角或关键物品。
 
-- [完整文档导航](docs/README.md)：产品、逐关规则、交互、架构、内容协议、AI 工坊、测试和发布。
-- [WP-PLAYABLE-STORY-01](docs/work-packages/WP-PLAYABLE-STORY-01.md)：接续 WP-01～03 的完整故事工程与交付证据。
-- [WP-STORY-EXPERIENCE-02](docs/work-packages/WP-STORY-EXPERIENCE-02.md)：因果演出、场景直接摆物、渐进帮助、绘本修复与资源接入证据。
-- [WP-PLAYFUL-GAME-03](docs/work-packages/WP-PLAYFUL-GAME-03.md)：主线手感、自由野餐、三个短玩法与本次验证。
-- [WP-TABBY-ART-UI-CUTOVER-01](docs/work-packages/WP-TABBY-ART-UI-CUTOVER-01.md)：狸花猫资产基线、正式 UI 切换与实际运行验收。
-- [Codex 启动提示词](docs/prompts/codex-start.md) / [Claude Code 启动提示词](docs/prompts/claude-start.md)。
-- 两种工具共同遵循 [AGENTS.md](AGENTS.md)，不要分别建立引擎或相互覆盖工作区。
+## 开发与体验
 
-## 本地启动
-
-运行环境：Node.js 22.12+；建议使用仍受支持的 Node.js LTS。初始化环境为 Node.js 22.16.0。
+Node.js 22.12+，已有真实且精确锁定的 npm lockfile。
 
 ```sh
 npm ci
-npm run dev -- --host 0.0.0.0
+npm run dev -- --host 127.0.0.1 --port 5178
+# http://127.0.0.1:5178/ —— 正式 React 入口
+npm test
+npm run typecheck
+npm run typecheck:domain
+npm run build
+npm run check:resources
+npm run test:browser
 ```
 
-锁文件由真实 npm 安装生成并提交。浏览器打开终端给出的本地 URL；`/#design` 是复用正式组件的轻量设计预览。主线无需模型 Key 或后端。局域网 HTTP 的安全上下文限制见 STATUS；手机发布需 HTTPS。
+浏览器回归从正常首页真实操作，使用生产 HTTP `127.0.0.1:4174`；需已安装 Playwright Chromium。`dist` 是静态构建产物，Vite dev/preview 是本地体验服务。没有公网部署。旧 `/#design` 不再是独立页面；本包只交付正式入口。
 
-```sh
-npm test                 # 领域内核测试；使用 Node 原生测试器，无第三方测试依赖
-npm run typecheck        # 依赖安装后执行
-npm run build            # 依赖安装后执行
-npm run check:resources  # 开发资源、哈希、引用与可操作性
-npm run check:release    # 当前会拒绝未审核资源；不是已具备发布条件
-npm run preview -- --host 0.0.0.0
-npx playwright install chromium
-npm run test:browser     # 先 build；自动启动 127.0.0.1:4174 的生产预览
-```
+## 当前权威与限制
 
-Vite 开发或预览服务器用于本地体验；交付时部署 dist 静态产物，不要求评委安装 Node.js。尚未配置托管服务，不把仓库地址当成游戏地址。
+- [项目状态与本次真实检查](docs/STATUS.md)
+- [本工作包](docs/work-packages/WP-GAMEPLAY-CORE-04.md)
+- [产品与范围](docs/01-product-and-scope.md)、[场景玩法](docs/02-gameplay-and-levels.md)
+- [架构](docs/04-architecture.md)、[运行和存档合同](docs/05-content-and-runtime-contracts.md)
+- [全部文档导航](docs/README.md)、[有效决策](docs/10-decisions-risks-and-sources.md)
 
-## 首版边界
+三幕和六个核心词是本故事的编排；旧十二挑战、十三步骤不是全产品限制。所有动作经同一个 `domain.transition`，目标和学习记录从已提交事实投影，动画不推进状态。探索、教学、辅助、独立应用和回访分开记录；一次成功不等于掌握或学习效果提升。
 
-三幕、十二个教学挑战、十三个底层操作步骤；核心词汇 cat / bag / map / mat / hat / cap；位置关系 in / on。第四关拆为换字与铺路两步，但仍是一个挑战。
+复用带绿围巾、背包和画面颈部右侧白色定位器的狸花猫资产。素材权利、正式录音和教研状态保持 PENDING；浏览器 TTS 明示为开发语音。真机和真实儿童试玩尚未完成，`check:release` 仍阻断未审核资源。旧线性存档会原样备份、可导出，明确重开新目标，绝不把旧 step 映射成新通关。
 
-主线与三个短活动均为手工编排，不依赖模型或后端。正常开始并通关后，点击“继续野餐”：拼词找物、点击或拖放布置、戴帽、打开背包取物、选地图/纸偶做换字魔法。三个小活动在野餐下方；退出活动返回原布置。AI 工坊及所有生成/后台工作暂停。
-
-## 工程原则
-
-世界状态是权威，动画是状态的表现；单词不等于物品实例；换字不复制原物品；操作失误不算英语错误；提示后完成不算独立掌握。先交付真实可玩闭环，再做美术和 AI 工坊，不建设大型教学平台。
-
-## 权利与资料
-
-本仓库为公开仓库。不提交 API 密钥、儿童个人信息、公司内部课件或未经授权的品牌素材。项目未自行选择开源许可证；公开可见不等于获得第三方素材复用许可。公司品牌、图像、语音及后续发布范围由项目负责人确认。公开产品资料仅用于产品定位，来源与局限见 [来源与决策](docs/10-decisions-risks-and-sources.md)。
+仓库公开可见不代表获得第三方素材复用许可；不提交密钥、儿童个人信息、内部课件或未经授权的品牌素材。AGENTS.md 与 CLAUDE.md 共用同一工程合同。

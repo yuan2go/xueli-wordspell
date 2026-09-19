@@ -2,7 +2,10 @@ import type { World } from "../domain/world.ts";
 import type { Step } from "../content/story.ts";
 export function letterLayout(step: Step) {
   const editable =
-    step.editable ?? (step.type === "transform" ? [2] : [0, 1, 2]);
+    step.editable ??
+    (step.type === "transform"
+      ? [step.word.length - 1]
+      : Array.from({ length: step.word.length }, (_, i) => i));
   return {
     editable,
     tokens: [...step.letters].map((letter, i) => ({

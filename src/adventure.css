@@ -1,0 +1,1067 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: #254b3d;
+  color: var(--ink);
+  font-family: var(--body);
+}
+button,
+input {
+  font: inherit;
+}
+button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--paper-light);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button:hover {
+  border-color: var(--ink);
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+button:focus-visible,
+a:focus-visible,
+summary:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--ochre-dark);
+  outline-offset: 2px;
+}
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+}
+p {
+  line-height: 1.55;
+}
+h1,
+h2 {
+  font-family: var(--display);
+  font-weight: 650;
+  margin: 0 0 10px;
+}
+h2 {
+  font-size: 23px;
+}
+a {
+  color: inherit;
+}
+.primary {
+  background: var(--ink);
+  color: var(--paper-light);
+  font-weight: 650;
+  min-height: 48px;
+}
+.quiet {
+  background: transparent;
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.selected,
+[aria-pressed="true"] {
+  outline: 2px solid var(--ochre-dark);
+  outline-offset: 1px;
+}
+.micro,
+.audio-note {
+  font-size: 12px;
+  color: var(--muted);
+}
+.notice {
+  padding: 8px 12px;
+  background: var(--ochre-pale);
+  font-size: 13px;
+}
+.quest-app {
+  max-width: 1440px;
+  margin: 12px auto;
+  padding: 16px 24px;
+  background: var(--paper);
+  border-radius: 12px;
+  min-height: calc(100dvh - 24px);
+}
+.quest-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+.quest-brand {
+  font: 600 24px var(--display);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.quest-brand small {
+  display: block;
+  font: 9px var(--body);
+  letter-spacing: 0.18em;
+  margin-top: 3px;
+}
+.chapter-name {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 13px;
+}
+.world-problem {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 15px 0;
+}
+.world-problem h1 {
+  font-size: 28px;
+  white-space: nowrap;
+  margin: 0;
+}
+.world-problem p {
+  margin: 0;
+  max-width: 770px;
+  font-size: 15px;
+}
+.quest-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+  gap: 20px;
+  height: calc(100dvh - 180px);
+  min-height: 560px;
+  max-height: 900px;
+}
+.quest-scene {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-width: 0;
+  border-radius: 8px;
+  background: var(--paper-dark);
+}
+.quest-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+.cat-speech {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 10;
+  padding: 8px 12px;
+  background: #fffaf0ef;
+  margin: 0;
+  border-radius: 8px;
+  font-size: 14px;
+  pointer-events: none;
+}
+.quest-object,
+.missing-object {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 22%;
+  max-width: 140px;
+  padding: 2px;
+  border: 2px solid transparent;
+  background: transparent;
+  touch-action: none;
+  z-index: 4;
+  transition:
+    left 0.35s ease,
+    top 0.35s ease;
+}
+.quest-object img,
+.missing-object img {
+  aspect-ratio: 1;
+  object-fit: contain;
+  width: 100%;
+  pointer-events: none;
+}
+.quest-cat {
+  width: 30%;
+  max-width: 240px;
+  z-index: 5;
+}
+.quest-cat img {
+  aspect-ratio: 0.83;
+}
+.quest-mat {
+  width: 35%;
+  max-width: 270px;
+  z-index: 1;
+}
+.quest-mat img {
+  aspect-ratio: 1.8;
+}
+.quest-worn {
+  width: 14%;
+  max-width: 110px;
+  z-index: 7;
+}
+.quest-worn img {
+  aspect-ratio: 1.6;
+}
+.quest-worn .item-label {
+  position: absolute;
+  left: 75%;
+  top: 0;
+  white-space: nowrap;
+}
+.item-label,
+.missing-object span,
+.bag-state {
+  display: table;
+  margin: auto;
+  padding: 2px 6px;
+  background: #fffaf0ef;
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.bag-state {
+  font-size: 10px;
+}
+.quest-object:hover,
+.missing-object:hover {
+  background: #fffaf033;
+}
+.quest-object.legal-target {
+  border: 2px dashed #8d6c26;
+  border-radius: 12px;
+  background: #fff5cf55;
+}
+.quest-object.selected {
+  outline: 2px dashed var(--ink);
+}
+.missing-object {
+  border: 1px dashed var(--ochre-dark);
+  border-radius: 10px;
+  z-index: 3;
+}
+.missing-object img {
+  opacity: 0.55;
+  filter: saturate(0.4);
+}
+.quest-ink {
+  position: absolute;
+  left: 36%;
+  top: 44%;
+  width: 34%;
+  height: 15%;
+  z-index: 0;
+  background: #37493f;
+  color: #fff8e5;
+  border-radius: 35% 20%;
+  font-size: 13px;
+}
+.quest-ink.legal-target {
+  outline: 3px dashed var(--ochre);
+}
+.scene-trail[data-crossed="true"] .quest-ink {
+  background: #55705a;
+}
+.ground-target {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  z-index: 10;
+  background: #fffaf0e6;
+  border: 2px dashed var(--ochre-dark);
+  font-size: 12px;
+}
+.covered-brim {
+  position: absolute;
+  left: 72%;
+  top: 49%;
+  width: 14%;
+  height: 11%;
+  overflow: hidden;
+  z-index: 2;
+  pointer-events: none;
+}
+.covered-brim img {
+  width: 100%;
+  transform: translateY(-28%);
+}
+.covered-brim span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: 10px;
+  background: var(--paper-light);
+}
+.quest-tools {
+  overflow: auto;
+  min-height: 0;
+  padding: 0 4px 12px;
+  scrollbar-width: thin;
+}
+.scene-invitation {
+  font-family: var(--display);
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+.context-actions,
+.tool-help,
+.activity-exit {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.context-actions {
+  margin-bottom: 12px;
+}
+.context-actions button {
+  font-size: 13px;
+}
+.world-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.task-action {
+  text-align: left;
+}
+.task-action span {
+  font-size: 12px;
+  color: var(--muted);
+  float: right;
+}
+.quest-goals {
+  margin: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+summary {
+  cursor: pointer;
+  min-height: 44px;
+  padding: 10px 2px;
+  font-size: 13px;
+}
+.quest-goals p {
+  font-size: 13px;
+  margin: 6px 0;
+}
+.activity-doors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+.activity-doors button {
+  font-size: 13px;
+  background: var(--paper-dark);
+}
+.activity-success {
+  padding: 8px;
+  background: var(--sage);
+  border-radius: 6px;
+}
+.tool-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--muted);
+}
+.tool-heading button {
+  font-size: 12px;
+  min-height: 36px;
+}
+.tool-context {
+  margin: 6px 0;
+  font-size: 14px;
+}
+.answer {
+  font:
+    600 22px Georgia,
+    serif;
+  background: var(--ochre-pale);
+  padding: 7px 12px;
+  margin: 8px 0;
+}
+.answer small {
+  display: block;
+  font: 12px var(--body);
+}
+.meaning-pair {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  justify-content: center;
+}
+.meaning-pair img {
+  max-height: 64px;
+  width: 70px;
+  object-fit: contain;
+}
+.slots,
+.letter-bank {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 8px 0;
+}
+.letter {
+  width: 54px;
+  height: 54px;
+  min-height: 48px;
+  padding: 2px;
+  font:
+    28px Georgia,
+    serif;
+  position: relative;
+  touch-action: none;
+}
+.slot {
+  background: var(--paper-dark);
+  border: 1px dashed var(--ochre-dark);
+}
+.letter small {
+  font: 9px var(--body);
+  display: block;
+}
+.letter-workshop .micro {
+  text-align: center;
+  margin: 5px 0;
+}
+.letter-workshop .spell {
+  display: block;
+  margin: 8px auto;
+}
+.tutorial-live {
+  font-size: 12px;
+  margin: 6px 0;
+}
+.sentence-line {
+  display: flex;
+  align-content: start;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 2px dashed var(--ochre-dark);
+  padding: 8px 0;
+  min-height: 94px;
+}
+.sentence-line > span {
+  font-size: 13px;
+  color: var(--muted);
+}
+.sentence-line button,
+.word-blocks button {
+  font-family: Georgia, serif;
+  font-size: 20px;
+  padding: 4px 10px;
+}
+.sentence-edit {
+  display: flex;
+  gap: 4px;
+  margin: 6px 0;
+}
+.sentence-edit button {
+  font-size: 12px;
+  padding: 3px 8px;
+  min-height: 36px;
+}
+.word-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 8px 0;
+}
+.sentence-builder > .primary {
+  width: 100%;
+}
+.tool-help {
+  margin: 10px 0 3px;
+}
+.tool-help button {
+  font-size: 12px;
+  padding: 5px 8px;
+  min-height: 36px;
+}
+.audio-note {
+  margin: 4px 0;
+}
+.quest-feedback {
+  font-size: 14px;
+  padding: 10px;
+  border-left: 3px solid var(--ochre-dark);
+  background: var(--paper-dark);
+  margin: 12px 0 0;
+}
+.quest-feedback.done {
+  border-color: var(--ink);
+}
+.drag-ghost {
+  position: fixed;
+  transform: translate(-50%, -65%);
+  z-index: 100;
+  pointer-events: none;
+  background: var(--paper-light);
+  border: 2px solid var(--ochre-dark);
+  border-radius: 8px;
+  padding: 8px;
+  font:
+    28px Georgia,
+    serif;
+}
+.object-ghost {
+  width: 90px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  filter: drop-shadow(0 6px 3px #0004);
+}
+.drag-origin {
+  opacity: 0.45;
+}
+.paper-puppet {
+  display: block;
+  width: 88%;
+  margin: auto;
+  background: var(--paper-light);
+  border: 1px dashed var(--ochre-dark);
+  padding: 3px;
+}
+.paper-puppet small {
+  font-size: 10px;
+}
+.art-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 44px;
+  background: var(--paper-dark);
+  font-size: 12px;
+}
+.art-fallback small {
+  font-size: 10px;
+}
+.quest-cover {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  align-items: center;
+  gap: 32px;
+  padding-top: 24px;
+}
+.quest-cover h1 {
+  font-size: clamp(32px, 4vw, 55px);
+}
+.quest-cover-art {
+  height: 65vh;
+  position: relative;
+  overflow: hidden;
+}
+.quest-cover-art > img:first-child {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+.quest-cover-art > .character-art {
+  position: absolute;
+  bottom: 5%;
+  left: 7%;
+  width: 60%;
+}
+.quest-cover-art > img:last-child {
+  position: absolute;
+  bottom: 5%;
+  right: 0;
+  width: 35%;
+}
+.quest-cover .eyebrow {
+  font-size: 13px;
+  color: var(--muted);
+}
+dialog {
+  width: min(520px, calc(100vw - 24px));
+  max-height: 90dvh;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 20px 60px #0005;
+}
+dialog::backdrop {
+  background: #142d22aa;
+}
+dialog button {
+  margin: 5px;
+}
+dialog label {
+  display: block;
+  padding: 8px;
+}
+dialog input {
+  width: 70%;
+}
+.quest-records {
+  max-width: 950px;
+  margin: 24px auto;
+}
+.quest-records li {
+  font-size: 13px;
+  margin: 10px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.quest-records button {
+  margin: 5px;
+}
+.ending-choice {
+  font-size: 14px;
+}
+.resource-notice {
+  margin: 6px 0;
+}
+.save-warning {
+  margin: 5px 0;
+  max-height: 80px;
+  overflow: auto;
+}
+@media (max-width: 850px) {
+  .quest-app {
+    padding: 8px 12px;
+    margin: 0;
+    border-radius: 0;
+    min-height: 100dvh;
+  }
+  .quest-header {
+    gap: 7px;
+    padding-bottom: 6px;
+  }
+  .quest-brand {
+    font-size: 19px;
+  }
+  .chapter-name {
+    font-size: 11px;
+  }
+  .quest-header button {
+    padding: 5px 10px;
+    font-size: 13px;
+  }
+  .quest-layout {
+    grid-template-columns: 1.3fr 1fr;
+    gap: 12px;
+    height: calc(100dvh - 146px);
+    min-height: 470px;
+  }
+  .world-problem {
+    padding: 10px 0;
+    gap: 12px;
+  }
+  .world-problem h1 {
+    font-size: 23px;
+  }
+  .world-problem p {
+    font-size: 13px;
+  }
+  .quest-cover {
+    gap: 16px;
+  }
+  .quest-cover-art {
+    height: 60vh;
+  }
+  .quest-object {
+    width: 23%;
+  }
+  .quest-cat {
+    width: 32%;
+  }
+  .quest-mat {
+    width: 38%;
+  }
+  .quest-worn {
+    width: 15%;
+  }
+}
+@media (max-width: 600px) {
+  .quest-app {
+    padding: 6px 8px;
+  }
+  .quest-header {
+    gap: 5px;
+    min-height: 46px;
+  }
+  .quest-brand {
+    font-size: 17px;
+  }
+  .quest-brand small {
+    font-size: 7px;
+  }
+  .chapter-name {
+    display: none;
+  }
+  .quest-header button:first-of-type {
+    margin-left: auto;
+  }
+  .world-problem {
+    display: block;
+    padding: 7px 2px;
+    min-height: 70px;
+    max-height: 100px;
+    overflow: auto;
+  }
+  .world-problem h1 {
+    font-size: 20px;
+    margin: 0 0 3px;
+  }
+  .world-problem p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .quest-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(210px, 0.85fr) minmax(240px, 1fr);
+    height: calc(100dvh - 132px);
+    min-height: 460px;
+    gap: 8px;
+  }
+  .quest-scene {
+    min-height: 0;
+  }
+  .cat-speech {
+    font-size: 11px;
+    line-height: 1.4;
+    top: 5px;
+    left: 6px;
+    right: 6px;
+    padding: 5px 8px;
+    max-height: 48px;
+    overflow: hidden;
+  }
+  .quest-object {
+    width: 21%;
+    max-width: 92px;
+  }
+  .quest-cat {
+    width: 26%;
+    max-width: 118px;
+  }
+  .quest-mat {
+    width: 34%;
+    max-width: 155px;
+  }
+  .quest-worn {
+    width: 14%;
+    max-width: 65px;
+  }
+  .item-label,
+  .missing-object span {
+    font-size: 10px;
+    padding: 1px 3px;
+  }
+  .bag-state {
+    font-size: 9px;
+    padding: 0 3px;
+  }
+  .missing-object {
+    width: 19%;
+    max-width: 85px;
+  }
+  .quest-cat .item-label {
+    margin-top: -10px;
+  }
+  .quest-tools {
+    padding: 0 3px 8px;
+  }
+  .quest-tools h2 {
+    font-size: 18px;
+    margin-bottom: 5px;
+  }
+  .scene-invitation {
+    font-size: 16px;
+    margin: 4px 0 9px;
+  }
+  .tool-heading {
+    margin: 0;
+  }
+  .tool-heading button {
+    min-height: 32px;
+    padding: 3px 8px;
+  }
+  .tool-context {
+    font-size: 12px;
+    line-height: 1.4;
+    margin: 4px 0;
+  }
+  .slots,
+  .letter-bank {
+    margin: 5px 0;
+    gap: 7px;
+  }
+  .letter {
+    height: 48px;
+    width: 49px;
+    min-height: 44px;
+    font-size: 24px;
+  }
+  .letter-workshop .spell {
+    min-height: 44px;
+    margin: 5px auto;
+  }
+  .tutorial-live {
+    display: none;
+  }
+  .letter-workshop .micro {
+    font-size: 10px;
+    margin: 3px;
+  }
+  .answer {
+    font-size: 18px;
+    padding: 4px 8px;
+    margin: 4px 0;
+  }
+  .meaning-pair {
+    height: 37px;
+  }
+  .meaning-pair img {
+    max-height: 37px;
+    width: 45px;
+  }
+  .meaning-pair span {
+    font-size: 13px;
+  }
+  .tool-help {
+    margin: 6px 0 2px;
+  }
+  .tool-help button {
+    min-height: 32px;
+  }
+  .audio-note {
+    font-size: 10px;
+  }
+  .quest-feedback {
+    font-size: 12px;
+    padding: 6px 9px;
+    margin-top: 7px;
+  }
+  .sentence-line {
+    min-height: 48px;
+    padding: 4px 0;
+  }
+  .sentence-line button,
+  .word-blocks button {
+    font-size: 17px;
+    min-height: 44px;
+    padding: 3px 9px;
+  }
+  .sentence-edit {
+    margin: 4px 0;
+  }
+  .sentence-edit button {
+    min-height: 32px;
+  }
+  .word-blocks {
+    margin: 5px 0;
+    gap: 4px;
+  }
+  .sentence-builder > .primary {
+    min-height: 44px;
+  }
+  .ground-target {
+    bottom: 4px;
+    left: 5px;
+    min-height: 32px;
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+  .quest-ink {
+    font-size: 11px;
+    min-height: 44px;
+  }
+  .context-actions button {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+  .task-action {
+    font-size: 13px;
+    min-height: 44px;
+  }
+  .quest-goals {
+    margin: 6px 0;
+  }
+  .activity-doors {
+    margin: 6px 0;
+  }
+  .activity-doors button {
+    font-size: 12px;
+  }
+  .quest-cover {
+    display: flex;
+    flex-direction: column;
+    padding: 22px 10px 8px;
+    gap: 10px;
+  }
+  .quest-cover h1 {
+    font-size: 32px;
+  }
+  .quest-cover-art {
+    height: 38vh;
+    width: 100%;
+    order: -1;
+  }
+  .quest-cover-art > .character-art {
+    width: 45%;
+    left: 20%;
+  }
+  .quest-cover-art > img:last-child {
+    width: 25%;
+  }
+  .quest-cover p {
+    font-size: 13px;
+  }
+  .quest-records h1 {
+    font-size: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Relational objects are anchored to their actual container/support, not the viewport. */
+.entity-anchor {
+  position: absolute;
+  width: 22%;
+  max-width: 140px;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+  transition:
+    left 0.35s ease,
+    top 0.35s ease;
+}
+.entity-anchor.anchor-actor {
+  width: 30%;
+  max-width: 220px;
+  z-index: 5;
+}
+.entity-anchor.anchor-mat {
+  width: 42%;
+  max-width: 330px;
+  z-index: 2;
+}
+.entity-anchor.anchor-road {
+  width: 32%;
+}
+.entity-anchor > .quest-object {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  width: 100%;
+  max-width: none;
+}
+.entity-anchor.anchor-on {
+  width: 45%;
+  max-width: 120px;
+  transform: translate(-50%, -85%);
+  z-index: 5;
+}
+.entity-anchor.anchor-on.anchor-actor {
+  width: 64%;
+  max-width: 200px;
+}
+.entity-anchor.anchor-worn {
+  width: 65%;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  z-index: 8;
+}
+.entity-anchor.anchor-worn .quest-worn img {
+  aspect-ratio: 1;
+}
+.entity-anchor.anchor-worn .item-label {
+  left: 88%;
+  top: 8%;
+  font-size: 10px;
+}
+.entity-anchor.anchor-worn .quest-object {
+  min-height: 0;
+  padding: 0;
+}
+.bag-contents {
+  position: absolute;
+  top: 78%;
+  left: -30%;
+  width: 170%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--ochre-dark);
+  background: #fffaf0ed;
+  border-radius: 5px;
+  z-index: 9;
+}
+.bag-contents > .anchor-in {
+  position: relative;
+  width: 50%;
+  max-width: 85px;
+  transform: none;
+  flex-shrink: 1;
+}
+.bag-contents .quest-object img {
+  aspect-ratio: 1.2;
+}
+@media (max-width: 600px) {
+  .entity-anchor {
+    width: 21%;
+    max-width: 92px;
+  }
+  .entity-anchor.anchor-actor {
+    width: 28%;
+    max-width: 118px;
+  }
+  .entity-anchor.anchor-mat {
+    width: 46%;
+    max-width: 180px;
+  }
+  .entity-anchor.anchor-worn {
+    width: 68%;
+    max-width: none;
+  }
+  .entity-anchor.anchor-on {
+    width: 48%;
+    max-width: none;
+  }
+  .entity-anchor.anchor-on.anchor-actor {
+    width: 65%;
+  }
+  .bag-contents .item-label {
+    font-size: 9px;
+  }
+  .entity-anchor.anchor-worn .item-label {
+    font-size: 9px;
+    left: 86%;
+    top: 0;
+  }
+}
+
+.letter,
+.sentence-line button,
+.word-blocks button {
+  font-family: Arial, sans-serif;
+}
